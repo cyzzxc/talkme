@@ -17,7 +17,7 @@
 ## 技术栈
 
 - **后端**: FastAPI + SQLite + WebSocket
-- **前端**: Vue.js 3 (SPA) + Pinia + WebSocket Client
+- **前端**: Vue.js 3 (独立仓库)
 - **存储**: 本地文件系统
 - **部署**: Docker + Docker Compose
 
@@ -42,100 +42,131 @@
 
 ## 项目架构
 
+### 仓库说明
+**当前仓库：后端专用仓库**
+- 本仓库专注于后端 API 开发
+- 前端代码已迁移到独立仓库
+- 项目结构已从 `backend/` 子目录提升到根目录
+
 ### 目录结构
 ```
-transfer/
-├── backend/                 # 后端 FastAPI 应用
-│   ├── app/
+talkeme/ (后端仓库)
+├── app/                    # FastAPI 应用核心
+│   ├── __init__.py
+│   ├── main.py            # 应用入口
+│   ├── config.py          # 配置管理
+│   ├── database.py        # 数据库连接
+│   ├── models/            # SQLAlchemy 数据模型
 │   │   ├── __init__.py
-│   │   ├── main.py         # 应用入口
-│   │   ├── config.py       # 配置文件
-│   │   ├── database.py     # 数据库连接
-│   │   ├── models/         # SQLAlchemy 模型
-│   │   │   ├── __init__.py
-│   │   │   └── file.py     # 文件模型
-│   │   ├── api/            # API 路由
-│   │   │   ├── __init__.py
-│   │   │   ├── files.py    # 文件相关 API
-│   │   │   └── websocket.py # WebSocket 处理
-│   │   ├── services/       # 业务逻辑
-│   │   │   ├── __init__.py
-│   │   │   ├── file_service.py # 文件服务
-│   │   │   └── thumbnail_service.py # 缩略图服务
-│   │   └── utils/          # 工具函数
-│   │       ├── __init__.py
-│   │       ├── security.py # 安全相关
-│   │       └── file_utils.py # 文件工具
-│   ├── uploads/            # 文件存储目录
-│   │   ├── images/         # 图片文件
-│   │   ├── documents/      # 文档文件
-│   │   └── others/         # 其他文件
-│   ├── temp/               # 临时文件目录
-│   ├── requirements.txt    # Python 依赖
-│   └── Dockerfile          # 后端 Docker 配置
-├── frontend/               # 前端 Vue.js 应用
-│   ├── src/
-│   │   ├── main.js         # 应用入口
-│   │   ├── App.vue         # 根组件
-│   │   ├── components/     # 组件目录
-│   │   │   ├── ChatWindow.vue    # 聊天窗口组件
-│   │   │   ├── MessageItem.vue   # 消息项组件
-│   │   │   ├── FileMessage.vue   # 文件消息组件
-│   │   │   ├── TextMessage.vue   # 文本消息组件
-│   │   │   └── FileUpload.vue    # 文件上传组件
-│   │   ├── views/          # 页面视图
-│   │   │   ├── Chat.vue    # 聊天主页
-│   │   │   └── Login.vue   # 登录页
-│   │   ├── stores/         # Pinia 状态管理
-│   │   │   ├── auth.js     # 认证状态
-│   │   │   ├── messages.js # 消息状态
-│   │   │   └── websocket.js # WebSocket 状态
-│   │   ├── utils/          # 工具函数
-│   │   │   ├── api.js      # API 调用
-│   │   │   ├── websocket.js # WebSocket 客户端
-│   │   │   └── file.js     # 文件处理工具
-│   │   └── styles/         # 样式文件
-│   │       ├── main.css    # 主样式
-│   │       └── components.css # 组件样式
-│   ├── public/
-│   │   └── index.html      # HTML 模板
-│   ├── package.json        # npm 依赖
-│   ├── vite.config.js      # Vite 配置
-│   └── Dockerfile          # 前端 Docker 配置
-├── docker-compose.yml      # Docker 编排配置
-├── .env.example           # 环境变量示例
-├── .gitignore            # Git 忽略文件
-├── README.md             # 项目说明
-└── CLAUDE.md            # 项目上下文（本文件）
+│   │   ├── file.py        # 文件模型
+│   │   ├── message.py     # 消息模型
+│   │   └── hash_task.py   # 哈希任务模型
+│   ├── api/               # API 路由
+│   │   ├── __init__.py
+│   │   ├── auth.py        # 认证接口
+│   │   ├── files.py       # 文件管理接口
+│   │   ├── messages.py    # 消息管理接口
+│   │   └── websocket.py   # WebSocket 处理
+│   ├── services/          # 业务逻辑层
+│   │   ├── __init__.py
+│   │   ├── file_service.py       # 文件服务
+│   │   ├── message_service.py    # 消息服务
+│   │   └── hash_service.py       # 哈希计算服务
+│   └── utils/             # 工具函数
+│       ├── __init__.py
+│       ├── security.py    # 安全工具
+│       └── file_utils.py  # 文件处理工具
+├── uploads/               # 文件存储目录
+│   ├── images/            # 图片文件
+│   ├── documents/         # 文档文件
+│   └── others/            # 其他文件
+├── temp/                  # 临时文件目录
+├── tests/                 # 测试文件
+├── init_db.py            # 数据库初始化脚本
+├── run.py                # 启动脚本
+├── requirements.txt      # Python 依赖
+├── .env.example          # 环境变量示例
+├── .env                  # 环境变量配置（本地，不提交）
+├── README.md             # 项目说明（后端专用）
+├── README.old.md         # 旧版说明（归档）
+└── CLAUDE.md             # 项目上下文（本文件）
 ```
 
 ## 数据模型
 
-### 消息模型 (Message) - MVP版本
+### 数据库设计和文件去重实现计划
+
+#### 文件去重策略
+- **哈希算法**: 使用 SHA256 完整文件哈希确保精确去重
+- **计算方式**: 异步方式计算哈希值，避免阻塞上传流程
+- **存储优化**: 相同文件只存储一份，通过引用计数管理
+- **秒传支持**: 检查哈希值实现文件秒传功能
+
+#### 实现计划
+1. **数据库模型优化**:
+   - File表增加file_hash和reference_count字段
+   - Message表分离文件信息，只存储引用关系
+   - 在file_hash字段建立索引优化查询性能
+
+2. **文件去重服务**:
+   - 实现异步SHA256哈希计算工具
+   - 创建去重检查和引用计数管理逻辑
+   - 支持文件上传时的秒传检测
+
+3. **数据库迁移**:
+   - 创建SQLAlchemy模型定义
+   - 生成数据库迁移脚本
+   - 配置数据库连接和索引
+
+### 优化后的数据模型
 ```python
-class Message:
-    id: int                 # 主键
-    message_type: str       # 消息类型（text/file）
-    content: str            # 文本内容（文本消息）或文件ID（文件消息）
-    timestamp: datetime     # 消息时间
-    device_id: str          # 设备标识（可选）
-    is_deleted: bool        # 软删除标记
-
 class File:
-    id: int                 # 主键
-    filename: str           # 原始文件名
-    stored_name: str        # 存储文件名（UUID）
-    file_type: str          # 文件类型（image/document/other）
-    mime_type: str          # MIME 类型
-    size: int              # 文件大小（字节）
-    upload_time: datetime   # 上传时间
-    is_deleted: bool        # 软删除标记
+    id: int                    # 主键
+    file_hash: str             # SHA256哈希值，用于去重（建立索引）
+    stored_name: str           # 存储文件名（UUID）
+    file_type: str             # 文件类型（image/document/other）
+    mime_type: str             # MIME类型
+    size: int                  # 文件大小（字节）
+    first_upload_time: datetime # 首次上传时间
+    reference_count: int       # 引用计数（有多少消息引用此文件）
+    is_deleted: bool           # 软删除标记
+    hash_status: str           # 哈希计算状态（pending/completed/failed）
 
-# 后续优化字段（低优先级）
-# expire_time: datetime   # 过期时间
-# download_count: int     # 下载次数
-# thumbnail_path: str     # 缩略图路径
+class Message:
+    id: int                    # 主键
+    message_type: str          # 消息类型（text/file）
+    content: str               # 文本内容或原始文件名
+    file_id: int              # 关联的文件ID（文件消息时使用）
+    timestamp: datetime        # 消息时间
+    device_id: str            # 设备标识
+    is_deleted: bool          # 软删除标记
+
+# 异步任务表（用于哈希计算）
+class HashTask:
+    id: int                   # 主键
+    file_id: int             # 关联文件ID
+    status: str              # 任务状态（pending/processing/completed/failed）
+    created_at: datetime     # 创建时间
+    completed_at: datetime   # 完成时间
 ```
+
+### 文件去重实现流程
+1. **文件上传时**:
+   - 先保存文件到临时目录
+   - 创建File记录，hash_status设为pending
+   - 创建异步哈希计算任务
+   - 立即返回上传成功响应
+
+2. **异步哈希计算**:
+   - 后台任务计算SHA256哈希值
+   - 检查数据库中是否存在相同哈希的文件
+   - 如果存在，删除新文件，更新引用计数
+   - 如果不存在，移动文件到正式目录
+
+3. **消息删除时**:
+   - 减少文件引用计数
+   - 当引用计数为0时，标记文件为删除状态
+   - 定期清理任务删除物理文件
 
 ## API 接口设计
 

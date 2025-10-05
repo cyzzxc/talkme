@@ -1,162 +1,256 @@
-# 文件传输助手
+# 文件传输助手 - 后端API
 
-类似微信文件传输助手的开源自建版本，专为个人设备间文件传输设计。
+个人文件传输助手的后端服务，基于 FastAPI 构建，支持文件上传、去重、消息管理和 WebSocket 实时通信。
 
-**设计理念：极简、稳定、快速**
+## 功能特性
 
-## 界面设计
+- ✅ **文件上传与下载**：支持多种文件类型
+- ✅ **文件去重**：基于 SHA256 哈希值的智能去重，节省存储空间
+- ✅ **消息管理**：统一管理文本和文件消息
+- ✅ **实时通信**：WebSocket 支持实时消息推送
+- ✅ **设备管理**：多设备在线状态跟踪
+- ✅ **引用计数**：智能管理文件生命周期
+- ✅ **简单认证**：密码保护访问
 
-🗨️ **类微信聊天界面**: 所有消息（文本、文件）在聊天框内按时间顺序显示，类似微信文件传输助手的交互体验。
+## 技术栈
 
-## 核心功能
-
-- 📁 **多类型文件支持**: 图片、文档、二进制文件等
-- 💬 **聊天式界面**: 文件和消息在聊天框中按时间顺序展示
-- 🚀 **实时传输**: WebSocket 实时通信
-- 🖱️ **拖拽上传**: 支持文件拖拽上传，操作便捷
-- 📱 **移动适配**: 响应式设计，支持手机浏览器访问
-- 🔐 **简单安全**: 访问密码保护，本地存储安全可控
-
-## 技术架构
-
-### 后端
-- **FastAPI**: 高性能异步 Web 框架
-- **SQLite**: 轻量级数据库，存储文件元数据
-- **WebSocket**: 实时通信支持
-- **本地存储**: 文件直接存储在服务器本地
-
-### 前端
-- **Vue.js 3**: 现代响应式前端框架
-- **SPA**: 单页应用，流畅的用户体验
-- **WebSocket 客户端**: 实时状态更新
-
-## 项目结构
-
-```
-transfer/
-├── backend/                 # 后端代码
-│   ├── app/
-│   │   ├── api/            # API 路由
-│   │   ├── models/         # 数据模型
-│   │   ├── services/       # 业务逻辑
-│   │   └── websocket/      # WebSocket 处理
-│   ├── uploads/            # 文件存储目录
-│   │   ├── images/         # 图片文件
-│   │   ├── documents/      # 文档文件
-│   │   └── others/         # 其他文件
-│   └── temp/              # 临时文件
-├── frontend/               # 前端代码
-│   ├── src/
-│   │   ├── components/     # Vue 组件
-│   │   ├── views/          # 页面视图
-│   │   ├── stores/         # 状态管理
-│   │   └── utils/          # 工具函数
-│   └── public/
-├── docker-compose.yml      # Docker 部署配置
-└── README.md
-```
+- **FastAPI**: 高性能异步Web框架
+- **SQLAlchemy**: ORM 和数据库管理
+- **SQLite**: 轻量级数据库
+- **WebSocket**: 实时双向通信
+- **Pydantic**: 数据验证
 
 ## 快速开始
 
-### 使用 Docker (推荐)
+### 1. 安装依赖
 
-```bash
-# 克隆项目
-git clone [项目地址]
-cd transfer
-
-# 启动服务
-docker-compose up -d
-
-# 访问应用
-http://localhost:8080
-```
-
-### 本地开发
-
-#### 后端
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-#### 前端
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## 配置说明
-
-### 环境变量
+### 2. 配置环境变量
 
 ```bash
-# 应用配置
-APP_PORT=8000              # 后端端口
-APP_SECRET=your-secret     # 访问密码
-UPLOAD_MAX_SIZE=100        # 最大文件大小(MB)
-FILE_EXPIRE_DAYS=7         # 文件过期天数
-
-# 存储配置
-UPLOAD_DIR=./uploads       # 文件存储目录
+cp .env.example .env
+# 编辑 .env 文件，至少修改 APP_SECRET
 ```
 
-## 核心功能
+### 3. 初始化数据库
 
-### 聊天式交互
-- 类微信聊天界面设计
-- 消息和文件按时间顺序显示
-- 支持文本消息发送
+```bash
+python init_db.py
+```
 
-### 文件传输
-- 支持拖拽上传文件
-- 文件在聊天框中显示
-- 点击文件可下载
+### 4. 启动服务
 
-### 实时通信
-- WebSocket 实时消息推送
-- 设备在线状态显示
+```bash
+python run.py
+```
 
-### 基础安全
-- 访问密码保护
-- 文件大小限制
-- 路径遍历防护
+或使用 uvicorn：
 
-## 开发计划
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### MVP 版本
-- [x] 基础架构设计
-- [ ] 后端 API 开发 (消息、文件上传下载)
-- [ ] 前端聊天界面开发
-- [ ] WebSocket 实时消息集成
-- [ ] 功能测试
+### 5. 访问API文档
 
-### 后续优化 (低优先级)
-- [ ] 文件列表管理界面
-- [ ] Docker 部署
-- [ ] 多文件批量上传
-- [ ] 实时进度显示
-- [ ] 文件类型验证
-- [ ] 按类型分类显示
-- [ ] 文件搜索功能
-- [ ] 过期文件自动清理
-- [ ] 上传进度实时更新
-- [ ] 文件操作通知推送
-- [ ] 图片缩略图生成
-- [ ] 文件类型白名单
-- [ ] XSS 防护
-- [ ] 图片自动压缩
-- [ ] 缩略图缓存
-- [ ] 静态文件缓存
-- [ ] 数据库查询优化
-- [ ] 文本文件在线预览
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-## 贡献指南
+## API 端点
 
-欢迎提交 Issue 和 Pull Request 来改进项目。
+### 认证 (`/api/auth`)
+
+- `POST /api/auth/login` - 用户登录
+- `POST /api/auth/logout` - 用户登出
+- `GET /api/auth/verify` - 验证令牌
+- `GET /api/auth/status` - 认证状态
+
+### 文件管理 (`/api/files`)
+
+- `POST /api/files/upload` - 上传文件
+- `GET /api/files/{file_id}/download` - 下载文件
+- `GET /api/files/{file_id}/info` - 获取文件信息
+- `GET /api/files/` - 获取文件列表（分页）
+- `DELETE /api/files/{file_id}` - 删除文件
+- `GET /api/files/stats` - 文件统计信息
+
+### 消息管理 (`/api/messages`)
+
+- `POST /api/messages/text` - 发送文本消息
+- `POST /api/messages/file` - 发送文件消息
+- `POST /api/messages/upload-and-send` - 上传并发送文件
+- `GET /api/messages/` - 获取消息列表（分页）
+- `GET /api/messages/{message_id}` - 获取单条消息
+- `DELETE /api/messages/{message_id}` - 删除消息
+- `PUT /api/messages/{message_id}/status` - 更新消息状态
+- `GET /api/messages/stats/summary` - 消息统计
+
+### WebSocket (`/ws`)
+
+- `WS /ws?device_id=xxx` - WebSocket 连接
+- `GET /ws/stats` - WebSocket 统计信息
+
+## WebSocket 消息格式
+
+### 客户端发送
+
+```json
+// 心跳
+{"type": "ping"}
+
+// 正在输入
+{"type": "typing", "is_typing": true}
+
+// 获取在线设备
+{"type": "get_online_devices"}
+```
+
+### 服务端推送
+
+```json
+// 连接成功
+{"type": "connected", "device_id": "xxx", "online_devices": [...]}
+
+// 新消息
+{"type": "new_message", "data": {...}}
+
+// 消息删除
+{"type": "message_deleted", "message_id": 123}
+
+// 设备状态
+{"type": "device_status", "device_id": "xxx", "status": "online"}
+
+// 正在输入
+{"type": "typing", "device_id": "xxx", "is_typing": true}
+```
+
+## 文件去重机制
+
+1. **上传时计算哈希**：文件上传时计算 SHA256 哈希值
+2. **检查重复**：查询数据库是否存在相同哈希的文件
+3. **秒传处理**：如果文件已存在，直接返回文件ID，增加引用计数
+4. **存储优化**：相同文件只存储一份，通过引用计数管理
+
+## 数据模型
+
+### File（文件）
+
+- `id`: 主键
+- `file_hash`: SHA256 哈希值（用于去重）
+- `stored_name`: 存储文件名（UUID）
+- `file_type`: 文件类型（image/document/other）
+- `mime_type`: MIME 类型
+- `size`: 文件大小
+- `reference_count`: 引用计数
+- `hash_status`: 哈希计算状态
+
+### Message（消息）
+
+- `id`: 主键
+- `message_type`: 消息类型（text/file）
+- `content`: 文本内容或文件名
+- `file_id`: 关联文件ID
+- `timestamp`: 消息时间
+- `device_id`: 设备标识
+- `status`: 消息状态
+
+## 环境变量配置
+
+| 变量名 | 默认值 | 说明 |
+|--------|--------|------|
+| `APP_HOST` | 0.0.0.0 | 服务监听地址 |
+| `APP_PORT` | 8000 | 服务端口 |
+| `APP_SECRET` | changeme | 访问密码（必须修改） |
+| `DEBUG` | false | 调试模式 |
+| `MAX_FILE_SIZE` | 104857600 | 最大文件大小（100MB） |
+| `ENABLE_FILE_DEDUP` | true | 启用文件去重 |
+| `ALLOWED_EXTENSIONS` | jpg,jpeg,png,... | 允许的文件扩展名 |
+
+## 开发指南
+
+### 目录结构
+
+```
+backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py           # 主应用
+│   ├── config.py         # 配置
+│   ├── database.py       # 数据库连接
+│   ├── models/           # 数据模型
+│   │   ├── file.py
+│   │   ├── message.py
+│   │   └── hash_task.py
+│   └── api/              # API 路由
+│       ├── auth.py
+│       ├── files.py
+│       ├── messages.py
+│       └── websocket.py
+├── uploads/              # 文件存储
+├── temp/                 # 临时文件
+├── init_db.py            # 数据库初始化
+├── run.py                # 启动脚本
+└── requirements.txt      # 依赖
+```
+
+### 添加新的API端点
+
+1. 在 `app/api/` 下创建新的路由文件
+2. 定义路由和处理函数
+3. 在 `app/api/__init__.py` 中导入路由
+4. 在 `app/main.py` 中注册路由
+
+### 数据库迁移
+
+使用 `init_db.py` 脚本初始化或重置数据库：
+
+```bash
+python init_db.py
+```
+
+## 安全注意事项
+
+- **修改默认密码**：部署前务必修改 `APP_SECRET`
+- **CORS 配置**：根据实际情况配置 `CORS_ORIGINS`
+- **文件大小限制**：根据服务器资源调整 `MAX_FILE_SIZE`
+- **文件类型限制**：配置 `ALLOWED_EXTENSIONS` 限制上传文件类型
+- **HTTPS**：生产环境建议使用 HTTPS
+
+## 故障排除
+
+### 数据库连接失败
+
+```bash
+# 检查数据库文件权限
+ls -l files.db
+
+# 重新初始化数据库
+python init_db.py
+```
+
+### 文件上传失败
+
+```bash
+# 检查上传目录权限
+ls -ld uploads/
+
+# 创建必要目录
+mkdir -p uploads/{images,documents,others} temp
+```
+
+### WebSocket 连接失败
+
+- 检查防火墙设置
+- 确认 CORS 配置正确
+- 查看浏览器控制台错误信息
 
 ## 许可证
 
 MIT License
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
